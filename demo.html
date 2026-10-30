@@ -2,14 +2,14 @@
 <html><head><meta charset="utf-8"><title>Q3 shadow fixture</title></head>
 <body>
 <enterprise-portal id="root-gateway"></enterprise-portal>
-<pre id="demo-output">Q3 demo loading...</pre>
+<pre id="demo-output" role="status" aria-live="polite">Q3 demo loading...</pre>
 <script>
 // Fixture mirroring the exam snippet: open -> (obfuscated class) -> closed -> open, button at the bottom.
 const rnd = () => 'obfuscated_' + Math.random().toString(36).slice(2, 9);   // regenerates on every reload
 const output = document.getElementById('demo-output');
 const show = (message) => { output.textContent = message; };
 class EP extends HTMLElement { constructor(){ super(); this.attachShadow({mode:'open'}); } }
-class PT extends HTMLElement { constructor(){ super(); this.attachShadow({mode:'closed'}); this._r = this.shadowRoot; } }
+class PT extends HTMLElement { constructor(){ super(); this._r = this.attachShadow({mode:'closed'}); } }
 class SS extends HTMLElement { constructor(){ super(); this.attachShadow({mode:'open'}); } }
 customElements.define('enterprise-portal', EP);
 customElements.define('payment-terminal', PT);
@@ -20,7 +20,7 @@ const pt = document.createElement('payment-terminal'); pt.className = rnd();
 portal.shadowRoot.appendChild(pt);
 const ss = document.createElement('security-sandbox'); ss.id = 'iframe-sandbox-wrapper';
 // closed root: only reachable through the reference we created (or the attachShadow hook / CDP)
-const closedRoot = (window.__closedRoots && window.__closedRoots.get(pt));
+const closedRoot = pt._r;
 (closedRoot || { appendChild(){ } }).appendChild(ss);
 const btn = document.createElement('button'); btn.className = 'trigger-finalize ' + rnd();
 btn.setAttribute('data-qa-state', 'unlocked-token'); btn.textContent = 'Authorize Ledger Funds';
